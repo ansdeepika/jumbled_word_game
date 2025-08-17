@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Word Jumble Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 40px;
+    }
+    #game, #controls { margin-top: 20px; }
+    .hidden { display: none; }
+    .score { margin: 10px; font-weight: bold; }
+    input, button { padding: 8px; margin: 5px; }
+  </style>
+</head>
+<body>
+
+  <h1>🎮 Word Jumble Game 🎮</h1>
+
+  <!-- Player name input -->
+  <div id="start">
+    <input id="p1" placeholder="Enter Player 1 name">
+    <input id="p2" placeholder="Enter Player 2 name">
+    <button onclick="startGame()">Start Game</button>
+  </div>
+
+  <!-- Game section -->
+  <div id="game" class="hidden">
+    <h2 id="turnInfo"></h2>
+    <p id="word"></p>
+    <input id="answer" placeholder="Enter your guess">
+    <button id="submitBtn" onclick="submitAnswer()">Submit</button>
+    <p id="result"></p>
+    
+    <div id="controls">
+      <button id="nextBtn" onclick="newWord()" disabled>Next Word</button>
+      <button onclick="endGame()">Quit</button>
+    </div>
+    
+    <div>
+      <p class="score" id="p1Score"></p>
+      <p class="score" id="p2Score"></p>
+    </div>
+  </div>
+
+  <!-- Final thank you message -->
+  <div id="end" class="hidden">
+    <h2>Game Over!</h2>
+    <p id="finalScores"></p>
+    <p>🎉 Thank you for playing! 🎉</p>
+  </div>
+
+  <script>
+    const words = ['Computer','Python','GNITS','Water','Operation','College',
+                   'Institution','Biryani','Panipuri','Mango','Butterfly',
+                   'Solve','Aptitude'];
+
+    let p1Name, p2Name;
+    let p1Score = 0, p2Score = 0;
+    let turn = 0;  // 0 = Player1, 1 = Player2
+    let pickedWord = "";
+
+    function shuffle(word) {
+      return word.split('').sort(() => 0.5 - Math.random()).join('');
+    }
+
+    function startGame() {
+      p1Name = document.getElementById("p1").value || "Player 1";
+      p2Name = document.getElementById("p2").value || "Player 2";
+      document.getElementById("start").classList.add("hidden");
+      document.getElementById("game").classList.remove("hidden");
+      updateScores();
+      newWord();
+    }
+
+    function newWord() {
+      pickedWord = words[Math.floor(Math.random() * words.length)];
+      const jumbled = shuffle(pickedWord);
+
+      document.getElementById("word").innerText = "Jumbled Word: " + jumbled;
+      document.getElementById("result").innerText = "";
+      document.getElementById("answer").value = "";
+
+      // 🔁 Reset buttons for new round
+      document.getElementById("submitBtn").disabled = false;
+      document.getElementById("nextBtn").disabled = true;
+
+      document.getElementById("turnInfo").innerText = 
+          (turn % 2 === 0 ? p1Name : p2Name) + " → It's your turn!";
+    }
+
+    function submitAnswer() {
+      const ans = document.getElementById("answer").value.trim();
+
+      if (ans.toLowerCase() === pickedWord.toLowerCase()) {
+        document.getElementById("result").innerText = "✅ Correct!";
+        if (turn % 2 === 0) { p1Score++; }
+        else { p2Score++; }
+        updateScores();
+      } else {
+        document.getElementById("result").innerText = "❌ Wrong! The word was " + pickedWord;
+      }
+
+      // 🔒 Lock submit so only one attempt per round
+      document.getElementById("submitBtn").disabled = true;
+      document.getElementById("nextBtn").disabled = false;
+
+      turn++;
+    }
+
+    function updateScores() {
+      document.getElementById("p1Score").innerText = p1Name + " Score: " + p1Score;
+      document.getElementById("p2Score").innerText = p2Name + " Score: " + p2Score;
+    }
+
+    function endGame() {
+      document.getElementById("game").classList.add("hidden");
+      document.getElementById("end").classList.remove("hidden");
+      document.getElementById("finalScores").innerText = 
+        `${p1Name}: ${p1Score} points\n${p2Name}: ${p2Score} points`;
+    }
+  </script>
+</body>
+</html>
